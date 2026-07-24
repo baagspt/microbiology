@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Sample Mikrobiology</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #1a1a1a; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+        
+        header { background-color: #262626; padding: 15px 30px; border-bottom: 1px solid #333; }
+        
+        .main-container { flex: 1; display: flex; }
+        
+        /* Area Foto */
+        .view-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        #display-image { max-width: 80%; max-height: 70vh; border: 5px solid #333; border-radius: 10px; transition: 0.3s; }
+        #deskripsi-produk { margin-top: 20px; font-size: 1.2rem; color: #ffaa00; }
+
+        /* Sidebar */
+        .sidebar { width: 320px; background-color: #262626; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+        .panel { background: #1f1f1f; padding: 18px; border-radius: 12px; border: 1px solid #333; display: flex; flex-direction: column; gap: 12px; }
+        .panel h2 { font-size: 14px; color: #fff; margin-bottom: 8px; }
+        .panel label { font-size: 12px; color: #ccc; }
+        .panel select,
+        .panel textarea,
+        .panel button { width: 100%; border-radius: 10px; border: 1px solid #444; background: #161616; color: #fff; }
+        .panel select,
+        .panel textarea { padding: 10px; font-size: 14px; outline: none; }
+        .panel textarea { resize: vertical; min-height: 80px; }
+        .panel button { padding: 12px 16px; font-weight: 700; cursor: pointer; background: #ffaa00; border-color: #b57f00; color: #1a1a1a; }
+        .panel button:hover { background: #ffbf3a; }
+        .rack-item { background: #333; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .rack-item.active { border: 2px solid #ffaa00; background: #444; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
+        
+        .status-empty { background-color: #4caf50; }
+        .status-low { background-color: #ffeb3b; }
+        .status-medium { background-color: #ff9800; }
+        .status-full { background-color: #e53935; }
+    </style>
+</head>
+<body>
+
+    <header><h1>� Monitoring Sample Mikrobiology</h1></header>
+
+    <div class="main-container">
+        <div class="view-container">
+            <img id="display-image" src="https://via.placeholder.com/600x400?text=Pilih+Rak+Untuk+Melihat+Isi" alt="Rak Gudang">
+            <h2 id="deskripsi-produk">Silakan pilih rak di samping</h2>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <h2>Pilih Rak</h2>
+                <div id="rak-list"></div>
+                <button id="reset-all-button" type="button" style="margin-top: 12px; background: #333; border-color: #555; color: #fff;">Reset Semua Rak</button>
+            </div>
+            <div class="panel">
+                <h2>Edit Rak</h2>
+                <label for="floor-select">Pilih Lantai</label>
+                <select id="floor-select">
+                    <option value="1">Lantai 1</option>
+                    <option value="2">Lantai 2</option>
+                    <option value="3">Lantai 3</option>
+                    <option value="4">Lantai 4</option>
+                </select>
+
+                <label>Data Produk Lantai</label>
+                <div id="entries-container"></div>
+                <button id="add-entry-button" type="button" style="margin-top: 8px; background: #333; border-color: #555; color: #fff;">Tambah Item</button>
+
+                <button id="save-button" type="button">Simpan Perubahan</button>
+                <button id="reset-button" type="button" style="margin-top: 8px; background: #333; border-color: #555; color: #fff;">Reset Lantai</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusLabels = {
+            0: 'Kosong',
+            1: 'Terisi'
+        };
+
+        const storageKey = 'rakGudangData';
+
+        function loadSavedData() {
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (!saved) return null;
+                const parsed = JSON.parse(saved);
+                return Array.isArray(parsed) ? parsed : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function saveDataGudang() {
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(dataGudang));
+            } catch {
+                console.warn('Gagal menyimpan data ke localStorage');
+            }
+        }
+
+        const dataGudang = loadSavedData() || [
+            {
+                id: 1,
+                nama: "Rak Produksi 1",
+                floors: [
+                    { floor: 1, product: "Nas Matcha 225ml", productionDate: "2026-07-02", expiredDate: "2026-12-31", productCode: "EA - EB (1,2,4)", status: 1, img: "1000.png" },
+                    { floor: 2, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" },
+                    { floor: 3, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" },
+                    { floor: 4, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" }
+                ]
+            },
+            {
+                id: 2,
+                nama: "Rak Produksi 2",
+                floors: [
+                    { floor: 1, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 2, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 3, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 4, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" }
+                ]
+            },
+            {
+                id: 3,
+                nama: "Rak Produksi 3",
+                floors: [
+                    { floor: 1, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 2, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 3, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 4, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" }
+                ]
+            },
+            {
+                id: 4,
+                nama: "Rak Produksi 4",
+                floors: [
+                    { floor: 1, product: "Nas Matcha 225ml", productionDate: "2026-07-02", expiredDate: "2026-12-31", productCode: "EA - EB (1,2,4)", status: 1, img: "1000.png" },
+                    { floor: 2, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" },
+                    { floor: 3, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" },
+                    { floor: 4, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0000.png" }
+                ]
+            },
+            {
+                id: 5,
+                nama: "Rak Produksi 5",
+                floors: [
+                    { floor: 1, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 2, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 3, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" },
+                    { floor: 4, product: "", productionDate: "", expiredDate: "", productCode: "", status: 0, img: "0.png" }
+                ]
+            }
+        ];
+
+        const container = document.getElementById('rak-list');
+        const floorSelect = document.getElementById('floor-select');
+        const entriesContainer = document.getElementById('entries-container');
+        const addEntryButton = document.getElementById('add-entry-button');
+        const saveButton = document.getElementById('save-button');
+        const resetButton = document.getElementById('reset-button');
+        const resetAllButton = document.getElementById('reset-all-button');
+        const displayImg = document.getElementById('display-image');
+        const displayDesc = document.getElementById('deskripsi-produk');
+
+        let selectedRakId = dataGudang[0].id;
+        let selectedFloor = 1;
+
+        function normalizeFloorEntries(floor) {
+            if (!Array.isArray(floor.entries)) {
+                const existing = {
+                    product: floor.product || '',
+                    productionDate: floor.productionDate || '',
+                    expiredDate: floor.expiredDate || '',
+                    productCode: floor.productCode || ''
+                };
+                if (existing.product || existing.productionDate || existing.expiredDate || existing.productCode) {
+                    floor.entries = [existing];
+                } else {
+                    floor.entries = [{ product: '', productionDate: '', expiredDate: '', productCode: '' }];
+                }
+                delete floor.product;
+                delete floor.productionDate;
+                delete floor.expiredDate;
+                delete floor.productCode;
+            }
+        }
+
+        function getFloorEntries(floor) {
+            normalizeFloorEntries(floor);
+            if (floor.entries.length === 0) {
+                floor.entries.push({ product: '', productionDate: '', expiredDate: '', productCode: '' });
+            }
+            return floor.entries;
+        }
+
+        function createEntryRow(entry, index) {
+            const row = document.createElement('div');
+            row.className = 'entry-row';
+            row.style.marginBottom = '12px';
+            row.innerHTML = `
+                <div style="display:grid; gap:8px;">
+                    <input data-index="${index}" data-field="product" type="text" placeholder="Nama Produk" value="${entry.product || ''}" />
+                    <input data-index="${index}" data-field="productionDate" type="date" value="${entry.productionDate || ''}" />
+                    <input data-index="${index}" data-field="expiredDate" type="date" value="${entry.expiredDate || ''}" />
+                    <input data-index="${index}" data-field="productCode" type="text" placeholder="Kode produksi" value="${entry.productCode || ''}" />
+                    <button type="button" class="remove-entry-button" data-index="${index}" style="background:#333; border:1px solid #555; color:#fff;">Hapus Item</button>
+                </div>
+            `;
+            return row;
+        }
+
+        function renderEntries(floor) {
+            const entries = getFloorEntries(floor);
+            entriesContainer.innerHTML = '';
+            entries.forEach((entry, index) => {
+                entriesContainer.appendChild(createEntryRow(entry, index));
+            });
+        }
+
+        const availableImageFiles = [
+            '0000.png', '0001.png', '0004.png', '0030.png', '0034.png',
+            '0200.png', '0204.png', '0220.png', '0230.png', '0234.png',
+            '1000.png', '1004.png', '1030.png', '1034.png',
+            '1200.png', '1204.png', '1230.png', '1234.png'
+        ];
+
+        function getRackImage(rak) {
+            const code = rak.floors
+                .slice(0, 4)
+                .map((floor, index) => getFloorEntries(floor).some(entry => entry.product) ? String(index + 1) : '0')
+                .join('');
+            const fileName = `${code}.png`;
+            return availableImageFiles.includes(fileName) ? fileName : '0000.png';
+        }
+
+        function setEmptyState() {
+            // no-op for entry-based floor editing
+        }
+
+        function getCurrentFloor(rak) {
+            return rak.floors.find(floor => floor.floor === selectedFloor);
+        }
+
+        function getRackOccupancyPercent(rak) {
+            const filled = rak.floors.filter(floor => floor.status === 1).length;
+            return Math.round((filled / rak.floors.length) * 100);
+        }
+
+        function formatFloorDescription(floor) {
+            const entries = getFloorEntries(floor).filter(entry => entry.product || entry.productionDate || entry.expiredDate || entry.productCode);
+            if (entries.length === 0) {
+                return `Lantai ${floor.floor}: Kosong\nStatus: ${statusLabels[floor.status]}`;
+            }
+            const entriesText = entries.map((entry, index) => {
+                return `Item ${index + 1}: ${entry.product || '-'}\n  Production Date : ${entry.productionDate || '-'}\n  Expired Date : ${entry.expiredDate || '-'}\n  Kode produksi : ${entry.productCode || '-'}`;
+            }).join('\n');
+            return `Lantai ${floor.floor}:\n${entriesText}\nStatus : ${statusLabels[floor.status]}`;
+        }
+
+        function formatDescription(rak) {
+            return rak.floors.map(formatFloorDescription).join('\n\n');
+        }
+
+        function getStatusDotClass(percent) {
+            if (percent === 0) return 'status-empty';
+            if (percent <= 25) return 'status-low';
+            if (percent <= 75) return 'status-medium';
+            return 'status-full';
+        }
+
+        function updateRackButtons() {
+            container.innerHTML = '';
+
+            dataGudang.forEach(rak => {
+                const btn = document.createElement('button');
+                btn.className = 'rack-item';
+                if (rak.id === selectedRakId) btn.classList.add('active');
+                const summaryPercent = getRackOccupancyPercent(rak);
+                const dotClass = getStatusDotClass(summaryPercent);
+                btn.innerHTML = `
+                    <div>
+                        <h3>${rak.nama}</h3>
+                        <p>${summaryPercent}% Terisi</p>
+                    </div>
+                    <div class="status-dot ${dotClass}"></div>
+                `;
+                btn.onclick = () => selectRak(rak.id);
+                container.appendChild(btn);
+            });
+        }
+
+        function fillFormForFloor(floor) {
+            setEmptyState();
+            renderEntries(floor);
+            displayImg.src = getRackImage(dataGudang.find(rak => rak.id === selectedRakId));
+        }
+
+        function selectRak(id) {
+            selectedRakId = id;
+            selectedFloor = 1;
+            floorSelect.value = selectedFloor;
+            const rak = dataGudang.find(item => item.id === id);
+            if (!rak) return;
+
+            displayDesc.innerText = formatDescription(rak);
+            updateRackButtons();
+            fillFormForFloor(getCurrentFloor(rak));
+        }
+
+        function saveRakData() {
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            const floor = getCurrentFloor(rak);
+            if (!floor) return;
+
+            const entries = getFloorEntries(floor).map(entry => ({
+                product: entry.product.trim(),
+                productionDate: entry.productionDate,
+                expiredDate: entry.expiredDate,
+                productCode: entry.productCode.trim()
+            })).filter(entry => entry.product || entry.productionDate || entry.expiredDate || entry.productCode);
+            floor.entries = entries.length > 0 ? entries : [{ product: '', productionDate: '', expiredDate: '', productCode: '' }];
+            floor.status = floor.entries.some(entry => entry.product) ? 1 : 0;
+            floor.img = getRackImage(rak);
+
+            renderEntries(floor);
+            displayDesc.innerText = formatDescription(rak);
+            displayImg.src = floor.img;
+            updateRackButtons();
+            saveDataGudang();
+        }
+
+        function resetFloor() {
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            const floor = getCurrentFloor(rak);
+            if (!floor) return;
+
+            floor.entries = [{ product: '', productionDate: '', expiredDate: '', productCode: '' }];
+            floor.status = 0;
+            floor.img = getRackImage(rak);
+
+            fillFormForFloor(floor);
+            displayDesc.innerText = formatDescription(rak);
+            displayImg.src = floor.img;
+            updateRackButtons();
+            saveDataGudang();
+        }
+
+        function resetAllRacks() {
+            dataGudang.forEach(rak => {
+                rak.floors.forEach(floor => {
+                    floor.entries = [{ product: '', productionDate: '', expiredDate: '', productCode: '' }];
+                    floor.status = 0;
+                });
+                const image = getRackImage(rak);
+                rak.floors.forEach(floor => floor.img = image);
+            });
+
+            const currentRak = dataGudang.find(item => item.id === selectedRakId);
+            if (currentRak) {
+                fillFormForFloor(getCurrentFloor(currentRak));
+                displayDesc.innerText = formatDescription(currentRak);
+                displayImg.src = getRackImage(currentRak);
+            }
+            updateRackButtons();
+            saveDataGudang();
+        }
+
+        addEntryButton.addEventListener('click', () => {
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            const floor = getCurrentFloor(rak);
+            if (!floor) return;
+            const entries = getFloorEntries(floor);
+            entries.push({ product: '', productionDate: '', expiredDate: '', productCode: '' });
+            renderEntries(floor);
+        });
+
+        entriesContainer.addEventListener('click', (event) => {
+            if (!event.target.classList.contains('remove-entry-button')) return;
+            const index = Number(event.target.dataset.index);
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            const floor = getCurrentFloor(rak);
+            if (!floor) return;
+            const entries = getFloorEntries(floor);
+            entries.splice(index, 1);
+            if (entries.length === 0) {
+                entries.push({ product: '', productionDate: '', expiredDate: '', productCode: '' });
+            }
+            renderEntries(floor);
+        });
+
+        entriesContainer.addEventListener('input', (event) => {
+            if (!event.target.matches('input')) return;
+            const index = Number(event.target.dataset.index);
+            const field = event.target.dataset.field;
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            const floor = getCurrentFloor(rak);
+            if (!floor) return;
+            const entries = getFloorEntries(floor);
+            if (!entries[index]) return;
+            entries[index][field] = event.target.value;
+        });
+
+        floorSelect.addEventListener('change', () => {
+            selectedFloor = Number(floorSelect.value);
+            const rak = dataGudang.find(item => item.id === selectedRakId);
+            if (!rak) return;
+            fillFormForFloor(getCurrentFloor(rak));
+        });
+
+
+        saveButton.addEventListener('click', saveRakData);
+        resetButton.addEventListener('click', resetFloor);
+        resetAllButton.addEventListener('click', resetAllRacks);
+
+        updateRackButtons();
+        selectRak(selectedRakId);
+    </script>
+</body>
+</html>
