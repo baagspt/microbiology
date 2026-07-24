@@ -199,7 +199,7 @@
             justify-content: space-between;
             position: relative;
             padding: 1px 4px;
-            overflow: hidden; /* Mencegah seluruh panel kanan meluber ke bawah */
+            overflow: hidden;
         }
 
         .top-left-container {
@@ -237,6 +237,8 @@
             border-radius: 8px;
             border: 1px solid rgba(0, 0, 0, 0.15);
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         .floor-summary-item {
@@ -331,14 +333,16 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.7);
             border-radius: 8px;
-            padding: 3px 5px;
+            padding: 4px 6px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             gap: 4px;
             flex: 1;
-            min-height: 0; /* Penting agar flex item dapat menyusut dan melakukan scroll */
-            max-height: 110px;
+            min-height: 80px;
+            max-height: none; /* Dihapus batas max-height agar area scroll mencakup seluruh kotak putih */
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         .panel-header-row {
@@ -364,7 +368,8 @@
             flex-direction: column;
             gap: 4px;
             height: 100%;
-            min-height: 0; /* Penting agar child flex di dalam bisa scroll */
+            min-height: 0;
+            flex: 1;
         }
 
         .center-description button {
@@ -379,13 +384,14 @@
 
         #entries-container {
             flex: 1;
-            overflow-y: auto; /* Membuat list item bisa di-scroll jika penuh */
-            min-height: 0; /* Mencegah container meluber ke bawah */
+            overflow-y: auto;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             gap: 3px;
             padding-right: 2px;
-            max-height: 65px;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         .left-rak-nav {
@@ -473,7 +479,7 @@
             width: 100%;
             margin: 0 auto;
             flex: 1;
-            min-height: 0; /* Penting untuk fleksibilitas tinggi panel atas */
+            min-height: 0;
             max-height: none;
             justify-content: flex-end; 
             margin-bottom: 2px; 
@@ -530,6 +536,8 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
+            touch-action: pan-y;
+            -webkit-overflow-scrolling: touch;
         }
 
         .search-result-item {
@@ -620,6 +628,8 @@
             max-width: 100%;
             width: max-content;
             margin-bottom: 12px;
+            touch-action: pan-x;
+            -webkit-overflow-scrolling: touch;
         }
 
         .cat-btn {
@@ -652,7 +662,7 @@
             display: inline-block;
         }
 
-        /* KHUSUS DESKTOP (UKURAN TEKS DIPERBESAR AGAR MUDAH DIBACA) */
+        /* KHUSUS DESKTOP */
         @media (min-width: 1024px) {
             html, body {
                 position: static;
@@ -728,7 +738,7 @@
                 border-radius: 12px;
                 padding: 18px 20px;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-                overflow: hidden; /* Mengunci panel kanan agar tidak meluber keluar layar */
+                overflow: hidden;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -797,7 +807,7 @@
 
             .top-action-container {
                 flex: 1;
-                min-height: 0; /* Memungkinkan kontainer atas menyusut agar ada ruang scroll */
+                min-height: 0;
                 max-height: none;
                 margin-bottom: 0;
                 justify-content: flex-start;
@@ -806,7 +816,7 @@
             .center-description {
                 max-height: none;
                 height: 100%;
-                min-height: 0; /* Memungkinkan elemen dalam flexbox melakukan scroll */
+                min-height: 0;
                 padding: 16px 18px;
                 font-size: 12.5px; 
                 border-radius: 10px;
@@ -816,7 +826,7 @@
 
             .panel-column {
                 height: 100%;
-                min-height: 0; /* Mengunci tinggi panel agar tidak memanjang ke bawah */
+                min-height: 0;
                 display: flex;
                 flex-direction: column;
             }
@@ -834,7 +844,7 @@
 
             #entries-container {
                 flex: 1;
-                min-height: 0; /* KUNCI UTAMA: Memastikan kontainer list bisa scroll mandiri saat item penuh */
+                min-height: 0;
                 max-height: none;
                 gap: 10px;
                 overflow-y: auto;
@@ -1575,7 +1585,7 @@
                         document.getElementById('input-code').value = '';
                         document.getElementById('input-desc').value = '';
                         editIndexInput.value = -1;
-                        editRakIndexIndex = -1;
+                        editRakIndexInput.value = -1;
                         editFloorNumInput.value = -1;
                         saveButton.textContent = "Tambah Item";
                     }
