@@ -199,7 +199,7 @@
             justify-content: space-between;
             position: relative;
             padding: 1px 4px;
-            overflow-y: auto;
+            overflow: hidden; /* Mencegah seluruh panel kanan meluber ke bawah */
         }
 
         .top-left-container {
@@ -337,6 +337,7 @@
             flex-direction: column;
             gap: 4px;
             flex: 1;
+            min-height: 0; /* Penting agar flex item dapat menyusut dan melakukan scroll */
             max-height: 110px;
         }
 
@@ -346,6 +347,7 @@
             align-items: center;
             margin-bottom: 1px;
             gap: 4px;
+            flex-shrink: 0;
         }
 
         .center-description h3 {
@@ -362,6 +364,7 @@
             flex-direction: column;
             gap: 4px;
             height: 100%;
+            min-height: 0; /* Penting agar child flex di dalam bisa scroll */
         }
 
         .center-description button {
@@ -376,7 +379,8 @@
 
         #entries-container {
             flex: 1;
-            overflow-y: auto;
+            overflow-y: auto; /* Membuat list item bisa di-scroll jika penuh */
+            min-height: 0; /* Mencegah container meluber ke bawah */
             display: flex;
             flex-direction: column;
             gap: 3px;
@@ -457,6 +461,7 @@
             z-index: 10;
             width: 100%;
             margin: 0 auto;
+            flex-shrink: 0;
         }
 
         .top-action-container {
@@ -468,6 +473,7 @@
             width: 100%;
             margin: 0 auto;
             flex: 1;
+            min-height: 0; /* Penting untuk fleksibilitas tinggi panel atas */
             max-height: none;
             justify-content: flex-end; 
             margin-bottom: 2px; 
@@ -722,7 +728,7 @@
                 border-radius: 12px;
                 padding: 18px 20px;
                 box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-                overflow: hidden;
+                overflow: hidden; /* Mengunci panel kanan agar tidak meluber keluar layar */
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -791,6 +797,7 @@
 
             .top-action-container {
                 flex: 1;
+                min-height: 0; /* Memungkinkan kontainer atas menyusut agar ada ruang scroll */
                 max-height: none;
                 margin-bottom: 0;
                 justify-content: flex-start;
@@ -799,6 +806,7 @@
             .center-description {
                 max-height: none;
                 height: 100%;
+                min-height: 0; /* Memungkinkan elemen dalam flexbox melakukan scroll */
                 padding: 16px 18px;
                 font-size: 12.5px; 
                 border-radius: 10px;
@@ -808,6 +816,7 @@
 
             .panel-column {
                 height: 100%;
+                min-height: 0; /* Mengunci tinggi panel agar tidak memanjang ke bawah */
                 display: flex;
                 flex-direction: column;
             }
@@ -825,6 +834,7 @@
 
             #entries-container {
                 flex: 1;
+                min-height: 0; /* KUNCI UTAMA: Memastikan kontainer list bisa scroll mandiri saat item penuh */
                 max-height: none;
                 gap: 10px;
                 overflow-y: auto;
@@ -1270,7 +1280,6 @@
             const rak = dataGudang[currentRakIndex];
             if (!rak) return;
 
-            // Mengubah class tema gradasi background body berdasarkan nomor rak (1 - 5)
             bodyBg.className = `rak-theme-${slideNum}`;
 
             for (let i = 1; i <= 5; i++) {
@@ -1477,7 +1486,6 @@
                     currentRakIndex = match.rakIndex;
                     selectedFloor = match.floorNum;
 
-                    // Update class tema background body sesuai rak hasil pencarian
                     bodyBg.className = `rak-theme-${match.rakIndex + 1}`;
 
                     for (let i = 1; i <= 5; i++) {
