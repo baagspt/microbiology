@@ -6,6 +6,10 @@
     <title>Monitoring Sample Microbiology</title>
     <!-- Tambahkan favicon Anda di sini, ganti "logo.png" dengan link atau nama file gambar logo Anda -->
     <link rel="icon" type="image/png" href="logo.png">
+    
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -340,7 +344,7 @@
             gap: 4px;
             flex: 1;
             min-height: 80px;
-            max-height: none; /* Dihapus batas max-height agar area scroll mencakup seluruh kotak putih */
+            max-height: none;
             touch-action: pan-y;
             -webkit-overflow-scrolling: touch;
         }
@@ -1062,26 +1066,10 @@
     </main>
 
     <script>
-        const storageKey = 'rakGudangDataMikro_6Lantai_Light_v34_desktop_stretch_full_v3';
-
-        function loadSavedData() {
-            try {
-                const saved = localStorage.getItem(storageKey);
-                if (!saved) return null;
-                const parsed = JSON.parse(saved);
-                return Array.isArray(parsed) ? parsed : null;
-            } catch {
-                return null;
-            }
-        }
-
-        function saveDataGudang() {
-            try {
-                localStorage.setItem(storageKey, JSON.stringify(dataGudang));
-            } catch {
-                console.warn('Gagal menyimpan data ke localStorage');
-            }
-        }
+        // Konfigurasi Supabase (Ganti dengan URL dan Anon Key dari Project Settings > API Supabase Anda)
+        const SUPABASE_URL = 'https://lkgjvcsujqdmzlpzrqjod.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'sb_publishable_Zn23S5A90sViwubCD6FsHw_UvYmz7J2';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         function formatDate(dateString) {
             if (!dateString) return '-';
@@ -1101,7 +1089,7 @@
             { floor: 6, entries: [], status: 0 }
         ];
 
-        const dataGudang = loadSavedData() || [
+        let dataGudang = [
             { id: 1, nama: "Rak 1", floors: defaultFloors() },
             { id: 2, nama: "Rak 2", floors: defaultFloors() },
             { id: 3, nama: "Rak 3", floors: defaultFloors() },
@@ -1127,6 +1115,44 @@
         const editRakIndexInput = document.getElementById('edit-rak-index');
         const editFloorNumInput = document.getElementById('edit-floor-num');
         const bodyBg = document.getElementById('body-bg');
+
+        // Fungsi Ambil Data dari Supabase
+        async function loadSavedData() {
+            try {
+                const { data, error } = await _supabase
+                    .from('Microbiology')
+                    .select('*')
+                    .order('rak_index', { ascending: true });
+
+                if (error || !data || data.length === 0) return null;
+
+                return data.map(item => ({
+                    id: item.rak_index + 1,
+                    nama: `Rak ${item.rak_index + 1}`,
+                    floors: item.floors_data
+                }));
+            } catch (err) {
+                console.warn('Gagal memuat data dari server', err);
+                return null;
+            }
+        }
+
+        // Fungsi Simpan Data ke Supabase
+        async function saveDataGudang() {
+            try {
+                for (let i = 0; i < dataGudang.length; i++) {
+                    const rak = dataGudang[i];
+                    await _supabase
+                        .from('Microbiology')
+                        .upsert({
+                            rak_index: i,
+                            floors_data: rak.floors
+                        }, { onConflict: ['rak_index'] });
+                }
+            } catch (err) {
+                console.warn('Gagal menyimpan data ke server', err);
+            }
+        }
 
         menuToggleBtn.addEventListener('click', () => {
             topLeftContainer.classList.toggle('visible');
@@ -1597,9 +1623,38 @@
             }
         });
 
-        window.addEventListener('DOMContentLoaded', () => {
+        // Inisialisasi awal saat halaman dimuat (Ambil data & Nyalakan Realtime Sync)
+        window.addEventListener('DOMContentLoaded', async () => {
+            const remoteData = await loadSavedData();
+            if (remoteData) {
+                dataGudang.forEach((rak, idx) => {
+                    if (remoteData[idx]) {
+                        rak.floors = remoteData[idx].floors;
+                    }
+                });
+            }
+            
             updateView(1);
             changeFloorByNumber(1);
+
+            // Supabase Realtime Listener (Sinkronisasi otomatis antar perangkat tanpa refresh)
+            _supabase
+                .channel('public:Microbiology')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'Microbiology' }, async () => {
+                    const latestData = await loadSavedData();
+                    if (latestData) {
+                        dataGudang.forEach((rak, idx) => {
+                            if (latestData[idx]) {
+                                rak.floors = latestData[idx].floors;
+                            }
+                        });
+                        const currentRak = dataGudang[currentRakIndex];
+                        renderEntries(getCurrentFloor(currentRak));
+                        updateFloorsOverview();
+                        previewImg.src = getRackImage(currentRak);
+                    }
+                })
+                .subscribe();
         });
     </script>
 </body>
