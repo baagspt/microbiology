@@ -1066,10 +1066,11 @@
     </main>
 
     <script>
-        // Konfigurasi Supabase (Ganti dengan URL dan Anon Key dari Project Settings > API Supabase Anda)
+        // Konfigurasi Supabase dengan API Key yang baru
         const SUPABASE_URL = 'https://lkgjvcsujqdmzlpzrqjod.supabase.co'; 
         const SUPABASE_ANON_KEY = 'sb_publishable_Zn23S5A90sViwubCD6FsHw_UvYmz7J2';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         function formatDate(dateString) {
             if (!dateString) return '-';
