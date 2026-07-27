@@ -446,6 +446,43 @@
             letter-spacing: 0.5px;
         }
 
+        /* Badge Notifikasi Pengambilan Sample (H+5 / H+7) */
+        .badge-notif-sampling {
+            background-color: #f59e0b;
+            color: #fff;
+            font-size: 6.5px;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 3px;
+            display: inline-block;
+            vertical-align: middle;
+            text-transform: uppercase;
+            animation: pulse-warning 1.5s infinite;
+        }
+
+        @keyframes pulse-warning {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Banner Notifikasi Global di Atas Panel */
+        #sampling-alert-banner {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 8px;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+            flex-shrink: 0;
+        }
+
         @keyframes highlightFlashColorOnly {
             0% { background-color: rgba(239, 68, 68, 0.55); border-color: rgba(239, 68, 68, 0.9); }
             50% { background-color: rgba(255, 255, 255, 0.95); border-color: rgba(210, 210, 210, 0.7); }
@@ -851,6 +888,13 @@
                 overflow-y: auto;
             }
 
+            #sampling-alert-banner {
+                padding: 10px 14px;
+                font-size: 12px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+
             .global-search-box {
                 padding: 10px 14px;
                 border-radius: 10px;
@@ -936,6 +980,13 @@
                 margin-left: 4px;
             }
 
+            .badge-notif-sampling {
+                font-size: 11px;
+                padding: 2.5px 8px;
+                border-radius: 4px;
+                margin-left: 6px;
+            }
+
             .entry-card {
                 font-size: 12px !important;
             }
@@ -1004,6 +1055,11 @@
             <div class="top-action-container">
                 <div class="center-description" id="side-desc">
                     <div class="panel-column">
+                        <!-- Banner Notifikasi Pengambilan Sample H+5 / H+7 -->
+                        <div id="sampling-alert-banner">
+                            <span id="sampling-alert-text">⚠️ Perhatian: Ada sample yang sudah memasuki jadwal pengambilan (H+5 / H+7)!</span>
+                        </div>
+
                         <div class="panel-header-row">
                             <h3 id="panel-title">Lantai 1</h3>
                             <button id="reset-button" type="button" style="background: rgba(250, 230, 230, 0.9); border-color: rgba(220, 167, 167, 0.6); color: #a03333; font-weight: 600;">Kosongkan Lantai</button>
@@ -1090,6 +1146,20 @@
             return dateString;
         }
 
+        // Fungsi Helper untuk Menghitung Selisih Hari dari Tanggal Acuan (Produksi / Input) ke Hari Ini
+        function getDaysDifference(dateString) {
+            if (!dateString) return -1;
+            const targetDate = new Date(dateString);
+            const today = new Date();
+            // Reset jam agar perbandingan murni berdasarkan selisih hari kalender
+            targetDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            const diffTime = today - targetDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
         const defaultFloors = () => [
             { floor: 1, entries: [], status: 0 },
             { floor: 2, entries: [], status: 0 },
@@ -1126,6 +1196,8 @@
         const editFloorNumInput = document.getElementById('edit-floor-num');
         const bodyBg = document.getElementById('body-bg');
         const panelTitle = document.getElementById('panel-title');
+        const samplingAlertBanner = document.getElementById('sampling-alert-banner');
+        const samplingAlertText = document.getElementById('sampling-alert-text');
 
         // Fungsi Ambil Data dari Firestore
         async function loadSavedData() {
@@ -1214,6 +1286,29 @@
             return floor.entries;
         }
 
+        // Pengecekan global untuk memicu banner peringatan jika ada item mencapai H+5 atau H+7
+        function checkGlobalSamplingNotifications() {
+            let alertItemsCount = 0;
+            dataGudang.forEach(rak => {
+                rak.floors.forEach(floor => {
+                    const entries = getFloorEntries(floor);
+                    entries.forEach(e => {
+                        const days = getDaysDifference(e.productionDate);
+                        if (days === 5 || days === 7 || days > 7) {
+                            alertItemsCount++;
+                        }
+                    });
+                });
+            });
+
+            if (alertItemsCount > 0) {
+                samplingAlertBanner.style.display = 'flex';
+                samplingAlertText.textContent = `⚠️ Perhatian: Ada ${alertItemsCount} sample yang sudah memasuki / melewati jadwal pengambilan (H+5 / H+7)!`;
+            } else {
+                samplingAlertBanner.style.display = 'none';
+            }
+        }
+
         function updateFloorsOverview() {
             const rak = dataGudang[currentRakIndex];
             if (!rak) return;
@@ -1227,13 +1322,21 @@
                 
                 let detailsHTML = '<span style="color: #666;">Kosong</span>';
                 if (entries.length > 0) {
-                    detailsHTML = entries.map(e => `
-                        <div style="margin-top: 2px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; color: #111;">
-                            <strong style="color: #111;">${e.product || '-'}</strong> ${e.productCode ? `(${e.productCode})` : ''} ${e.isNew ? '<span class="badge-new">NEW</span>' : ''}<br>
-                            <span style="color: #222;">Prod: ${formatDate(e.productionDate)} | Exp: ${formatDate(e.expiredDate)}</span>
-                            ${e.description ? `<br><span style="color: #555; font-style: italic;">Desc: ${e.description}</span>` : ''}
-                        </div>
-                    `).join('');
+                    detailsHTML = entries.map(e => {
+                        const days = getDaysDifference(e.productionDate);
+                        let samplingBadge = '';
+                        if (days === 5) samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
+                        else if (days === 7) samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
+                        else if (days > 7) samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
+
+                        return `
+                            <div style="margin-top: 2px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; color: #111;">
+                                <strong style="color: #111;">${e.product || '-'}</strong> ${e.productCode ? `(${e.productCode})` : ''} ${e.isNew ? '<span class="badge-new">NEW</span>' : ''} ${samplingBadge}<br>
+                                <span style="color: #222;">Prod: ${formatDate(e.productionDate)} | Exp: ${formatDate(e.expiredDate)}</span>
+                                ${e.description ? `<br><span style="color: #555; font-style: italic;">Desc: ${e.description}</span>` : ''}
+                            </div>
+                        `;
+                    }).join('');
                 }
 
                 itemDiv.innerHTML = `
@@ -1251,12 +1354,22 @@
             if (isHighlighted) animClass = 'highlight-item';
             if (isEditing) animClass = 'editing-item';
 
+            const days = getDaysDifference(entry.productionDate);
+            let samplingBadge = '';
+            if (days === 5) {
+                samplingBadge = '<span class="badge-notif-sampling">🔔 PENGAMBILAN H+5</span>';
+            } else if (days === 7) {
+                samplingBadge = '<span class="badge-notif-sampling">🔔 PENGAMBILAN H+7</span>';
+            } else if (days > 7) {
+                samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">⚠️ LEWAT H+${days}</span>`;
+            }
+
             card.className = `entry-card ${animClass}`;
             card.style.cssText = "background: rgba(255,255,255,0.85); border: 1px solid rgba(210,210,210,0.7); padding: 5px 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-shrink: 0; transition: all 0.3s ease; font-size: 7.5px;";
             
             card.innerHTML = `
                 <div style="color: #111; flex: 1; padding-right: 6px; line-height: 1.25;">
-                    <strong style="color: #111; display: inline-block; margin-bottom: 1px;">${entry.product || 'Tanpa Nama'}</strong> ${entry.productCode ? `<span style="color: #555;">(${entry.productCode})</span>` : ''} ${entry.isNew ? '<span class="badge-new">NEW</span>' : ''}<br>
+                    <strong style="color: #111; display: inline-block; margin-bottom: 1px;">${entry.product || 'Tanpa Nama'}</strong> ${entry.productCode ? `<span style="color: #555;">(${entry.productCode})</span>` : ''} ${entry.isNew ? '<span class="badge-new">NEW</span>' : ''} ${samplingBadge}<br>
                     <span style="color: #333;">Prod: ${formatDate(entry.productionDate)} | Exp: ${formatDate(entry.expiredDate)}</span>
                     ${entry.description ? `<br><span style="color: #555; font-style: italic;">Deskripsi: ${entry.description}</span>` : ''}
                 </div>
@@ -1293,6 +1406,7 @@
             }
 
             updateFloorsOverview();
+            checkGlobalSamplingNotifications();
         }
 
         const availableImageFiles = [
