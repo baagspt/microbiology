@@ -1067,14 +1067,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Konfigurasi Firebase Anda (Sesuaikan dengan data dari Firebase Console Anda)
+        // Konfigurasi Firebase Anda (Project ID: microbiology-93578)
         const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "proyek-anda.firebaseapp.com",
-            projectId: "proyek-anda",
-            storageBucket: "proyek-anda.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123:web:abc"
+            apiKey: "AIzaSyBNkAV7UiTkJntPzWRh4V4XWRGGZzJcuM",
+            authDomain: "microbiology-93578.firebaseapp.com",
+            projectId: "microbiology-93578",
+            storageBucket: "microbiology-93578.firebasestorage.app",
+            messagingSenderId: "327835672886",
+            appId: "1:327835672886:web:939fd42a07aca63fb29f37",
+            measurementId: "G-96FKR7EEDT"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -1135,14 +1136,12 @@
                 const loadedData = [];
                 querySnapshot.forEach((docSnap) => {
                     const item = docSnap.data();
-                    // Mengambil index dari ID dokumen (misal: rak_0, rak_1, dst atau berdasarkan field)
                     loadedData.push({
                         rak_index: item.rak_index,
                         floors_data: item.floors_data
                     });
                 });
 
-                // Urutkan berdasarkan rak_index
                 loadedData.sort((a, b) => a.rak_index - b.rak_index);
 
                 return loadedData.map(item => ({
@@ -1652,7 +1651,7 @@
             updateView(1);
             changeFloorByNumber(1);
 
-            // Realtime Sync menggunakan onSnapshot Firestore agar otomatis ter-update antar perangkat
+            // Realtime Sync menggunakan onSnapshot Firestore
             onSnapshot(collection(db, "Microbiology"), (snapshot) => {
                 let hasChanges = false;
                 snapshot.forEach((docSnap) => {
