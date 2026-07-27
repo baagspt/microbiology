@@ -7,9 +7,6 @@
     <!-- Tambahkan favicon Anda di sini, ganti "logo.png" dengan link atau nama file gambar logo Anda -->
     <link rel="icon" type="image/png" href="logo.png">
     
-    <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         * {
             box-sizing: border-box;
@@ -1065,12 +1062,23 @@
         </div>
     </main>
 
-    <script>
-        // Konfigurasi Supabase dengan API Key yang baru
-        const SUPABASE_URL = 'https://lkgjvcsujqdmzlpzrqjod.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'sb_publishable_Zn23S5A90sViwubCD6FsHw_UvYmz7J2';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- Firebase SDK v10 (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Konfigurasi Firebase Anda (Sesuaikan dengan data dari Firebase Console Anda)
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "proyek-anda.firebaseapp.com",
+            projectId: "proyek-anda",
+            storageBucket: "proyek-anda.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123:web:abc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
         function formatDate(dateString) {
             if (!dateString) return '-';
@@ -1116,42 +1124,50 @@
         const editRakIndexInput = document.getElementById('edit-rak-index');
         const editFloorNumInput = document.getElementById('edit-floor-num');
         const bodyBg = document.getElementById('body-bg');
+        const panelTitle = document.getElementById('panel-title');
 
-        // Fungsi Ambil Data dari Supabase
+        // Fungsi Ambil Data dari Firestore
         async function loadSavedData() {
             try {
-                const { data, error } = await _supabase
-                    .from('Microbiology')
-                    .select('*')
-                    .order('rak_index', { ascending: true });
+                const querySnapshot = await getDocs(collection(db, "Microbiology"));
+                if (querySnapshot.empty) return null;
 
-                if (error || !data || data.length === 0) return null;
+                const loadedData = [];
+                querySnapshot.forEach((docSnap) => {
+                    const item = docSnap.data();
+                    // Mengambil index dari ID dokumen (misal: rak_0, rak_1, dst atau berdasarkan field)
+                    loadedData.push({
+                        rak_index: item.rak_index,
+                        floors_data: item.floors_data
+                    });
+                });
 
-                return data.map(item => ({
+                // Urutkan berdasarkan rak_index
+                loadedData.sort((a, b) => a.rak_index - b.rak_index);
+
+                return loadedData.map(item => ({
                     id: item.rak_index + 1,
                     nama: `Rak ${item.rak_index + 1}`,
                     floors: item.floors_data
                 }));
             } catch (err) {
-                console.warn('Gagal memuat data dari server', err);
+                console.warn('Gagal memuat data dari Firebase', err);
                 return null;
             }
         }
 
-        // Fungsi Simpan Data ke Supabase
+        // Fungsi Simpan Data ke Firestore
         async function saveDataGudang() {
             try {
                 for (let i = 0; i < dataGudang.length; i++) {
                     const rak = dataGudang[i];
-                    await _supabase
-                        .from('Microbiology')
-                        .upsert({
-                            rak_index: i,
-                            floors_data: rak.floors
-                        }, { onConflict: ['rak_index'] });
+                    await setDoc(doc(db, "Microbiology", `rak_${i}`), {
+                        rak_index: i,
+                        floors_data: rak.floors
+                    });
                 }
             } catch (err) {
-                console.warn('Gagal menyimpan data ke server', err);
+                console.warn('Gagal menyimpan data ke Firebase', err);
             }
         }
 
@@ -1162,8 +1178,6 @@
         previewImg.onerror = () => {
             previewImg.src = '0000.png';
         };
-
-        const panelTitle = document.getElementById('panel-title');
 
         function isEditingActive() {
             const editIndex = parseInt(editIndexInput.value);
@@ -1335,11 +1349,11 @@
             previewImg.src = getRackImage(rak);
         }
 
-        function changeSlideByNumber(slideNum, highlightedIndex = -1) {
+        window.changeSlideByNumber = function(slideNum, highlightedIndex = -1) {
             updateView(slideNum, highlightedIndex);
         }
 
-        function changeFloorByNumber(floorNum, highlightedIndex = -1) {
+        window.changeFloorByNumber = function(floorNum, highlightedIndex = -1) {
             if (isEditingActive()) {
                 alert("Harap simpan perubahan terlebih dahulu sebelum beralih lantai!");
                 return;
@@ -1624,7 +1638,7 @@
             }
         });
 
-        // Inisialisasi awal saat halaman dimuat (Ambil data & Nyalakan Realtime Sync)
+        // Inisialisasi awal & Realtime Listener Firestore
         window.addEventListener('DOMContentLoaded', async () => {
             const remoteData = await loadSavedData();
             if (remoteData) {
@@ -1638,24 +1652,24 @@
             updateView(1);
             changeFloorByNumber(1);
 
-            // Supabase Realtime Listener (Sinkronisasi otomatis antar perangkat tanpa refresh)
-            _supabase
-                .channel('public:Microbiology')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'Microbiology' }, async () => {
-                    const latestData = await loadSavedData();
-                    if (latestData) {
-                        dataGudang.forEach((rak, idx) => {
-                            if (latestData[idx]) {
-                                rak.floors = latestData[idx].floors;
-                            }
-                        });
-                        const currentRak = dataGudang[currentRakIndex];
-                        renderEntries(getCurrentFloor(currentRak));
-                        updateFloorsOverview();
-                        previewImg.src = getRackImage(currentRak);
+            // Realtime Sync menggunakan onSnapshot Firestore agar otomatis ter-update antar perangkat
+            onSnapshot(collection(db, "Microbiology"), (snapshot) => {
+                let hasChanges = false;
+                snapshot.forEach((docSnap) => {
+                    const item = docSnap.data();
+                    if (dataGudang[item.rak_index]) {
+                        dataGudang[item.rak_index].floors = item.floors_data;
+                        hasChanges = true;
                     }
-                })
-                .subscribe();
+                });
+
+                if (hasChanges) {
+                    const currentRak = dataGudang[currentRakIndex];
+                    renderEntries(getCurrentFloor(currentRak));
+                    updateFloorsOverview();
+                    previewImg.src = getRackImage(currentRak);
+                }
+            });
         });
     </script>
 </body>
