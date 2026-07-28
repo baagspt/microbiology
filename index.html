@@ -446,41 +446,151 @@
             letter-spacing: 0.5px;
         }
 
-        /* Badge Notifikasi Pengambilan Sample (H+5 / H+7) */
-        .badge-notif-sampling {
-            background-color: #f59e0b;
-            color: #fff;
-            font-size: 6.5px;
-            font-weight: 700;
-            padding: 1px 4px;
-            border-radius: 3px;
-            margin-left: 3px;
-            display: inline-block;
-            vertical-align: middle;
-            text-transform: uppercase;
-            animation: pulse-warning 1.5s infinite;
-        }
-
-        @keyframes pulse-warning {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        /* Banner Notifikasi Global di Atas Panel */
-        #sampling-alert-banner {
+        /* Styling Banner Notifikasi Global diposisikan di dalam Panel Kanan */
+        .global-notification-banner {
             background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: white;
-            padding: 5px 8px;
-            border-radius: 6px;
-            font-size: 8px;
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 7.5px;
             font-weight: 600;
             display: none;
             align-items: center;
             justify-content: space-between;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 6px;
             margin-bottom: 4px;
-            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
+            z-index: 11;
             flex-shrink: 0;
+            animation: pulse-warning 1.5s infinite;
+        }
+
+        .global-notification-banner button {
+            background: #fff;
+            color: #d97706;
+            border: none;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 7px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @keyframes pulse-warning {
+            0% { opacity: 1; }
+            50% { opacity: 0.75; }
+            100% { opacity: 1; }
+        }
+
+        /* Styling Modal Pop-up untuk Menampilkan Item Saja & Bisa di-Close */
+        #sampling-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .sampling-modal-box {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalPopUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalPopUp {
+            from { transform: scale(0.85); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .sampling-modal-header {
+            background: #111;
+            color: white;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sampling-modal-close-icon {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+
+        .sampling-modal-body {
+            padding: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f9fafb;
+        }
+
+        .sampling-item-card {
+            background: #fefce8;
+            border: 1px solid #fef08a;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #111;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* PERBAIKAN BADGE: Ukuran font diperbesar & padding disesuaikan agar tidak kekecilan */
+        .badge-notif-sampling {
+            background-color: #f97316; /* Oranye Terang/Kontras */
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 4px;
+            display: inline-block;
+            vertical-align: middle;
+            letter-spacing: 0.3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .sampling-modal-footer {
+            padding: 10px 14px;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-btn-close {
+            background: #111;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
         }
 
         @keyframes highlightFlashColorOnly {
@@ -888,13 +998,6 @@
                 overflow-y: auto;
             }
 
-            #sampling-alert-banner {
-                padding: 10px 14px;
-                font-size: 12px;
-                border-radius: 8px;
-                margin-bottom: 8px;
-            }
-
             .global-search-box {
                 padding: 10px 14px;
                 border-radius: 10px;
@@ -980,11 +1083,53 @@
                 margin-left: 4px;
             }
 
+            /* Badge H+5 / H+7 di Desktop */
             .badge-notif-sampling {
                 font-size: 11px;
-                padding: 2.5px 8px;
+                padding: 3px 8px;
                 border-radius: 4px;
                 margin-left: 6px;
+            }
+
+            .global-notification-banner {
+                padding: 8px 12px;
+                font-size: 11px;
+                border-radius: 8px;
+                margin-bottom: 8px;
+            }
+
+            .global-notification-banner button {
+                padding: 4px 8px;
+                font-size: 10.5px;
+            }
+
+            .sampling-modal-box {
+                max-width: 520px;
+            }
+
+            .sampling-modal-header {
+                font-size: 14px;
+                padding: 14px 18px;
+            }
+
+            .sampling-modal-body {
+                max-height: 360px;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .sampling-item-card {
+                font-size: 13px;
+                padding: 12px 16px;
+            }
+
+            .sampling-modal-footer {
+                padding: 12px 18px;
+            }
+
+            .modal-btn-close {
+                padding: 8px 16px;
+                font-size: 13px;
             }
 
             .entry-card {
@@ -1010,6 +1155,22 @@
     </script>
 </head>
 <body id="body-bg" class="rak-theme-1">
+
+    <!-- Modal Pop-up untuk Menampilkan Item Saja & Tombol Close -->
+    <div id="sampling-modal-overlay">
+        <div class="sampling-modal-box">
+            <div class="sampling-modal-header">
+                <span id="sampling-modal-title">Detail Sample (H+5 / H+7)</span>
+                <button type="button" class="sampling-modal-close-icon" id="modal-x-close-btn">&times;</button>
+            </div>
+            <div class="sampling-modal-body" id="sampling-modal-entries-list">
+                <!-- Daftar item sample akan dimuat di sini secara dinamis -->
+            </div>
+            <div class="sampling-modal-footer">
+                <button type="button" class="modal-btn-close" id="modal-close-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
 
     <header>
         <div class="header-left">
@@ -1053,13 +1214,14 @@
 
         <div class="desktop-right-pane">
             <div class="top-action-container">
+                <!-- Banner Notifikasi Global (Dipindahkan ke sini, tepat di atas Lantai 1) -->
+                <div id="global-notification-banner" class="global-notification-banner">
+                    <span id="global-notification-text">⚠️ Perhatian: Ada sample yang memasuki/melewati jadwal pengambilan (H+5 / H+7)!</span>
+                    <button type="button" id="global-view-detail-btn">View Detail</button>
+                </div>
+
                 <div class="center-description" id="side-desc">
                     <div class="panel-column">
-                        <!-- Banner Notifikasi Pengambilan Sample H+5 / H+7 -->
-                        <div id="sampling-alert-banner">
-                            <span id="sampling-alert-text">⚠️ Perhatian: Ada sample yang sudah memasuki jadwal pengambilan (H+5 / H+7)!</span>
-                        </div>
-
                         <div class="panel-header-row">
                             <h3 id="panel-title">Lantai 1</h3>
                             <button id="reset-button" type="button" style="background: rgba(250, 230, 230, 0.9); border-color: rgba(220, 167, 167, 0.6); color: #a03333; font-weight: 600;">Kosongkan Lantai</button>
@@ -1123,7 +1285,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Konfigurasi Firebase Anda (Project ID: microbiology-93578)
         const firebaseConfig = {
             apiKey: "AIzaSyBNkAV7UiTkJntPzWRh4V4XWRGGZzJcuM",
             authDomain: "microbiology-93578.firebaseapp.com",
@@ -1146,12 +1307,10 @@
             return dateString;
         }
 
-        // Fungsi Helper untuk Menghitung Selisih Hari dari Tanggal Acuan (Produksi / Input) ke Hari Ini
         function getDaysDifference(dateString) {
             if (!dateString) return -1;
             const targetDate = new Date(dateString);
             const today = new Date();
-            // Reset jam agar perbandingan murni berdasarkan selisih hari kalender
             targetDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
             
@@ -1179,6 +1338,7 @@
 
         let currentRakIndex = 0;
         let selectedFloor = 1;
+        let cachedAlertItems = [];
 
         const entriesContainer = document.getElementById('entries-container');
         const saveButton = document.getElementById('save-button');
@@ -1196,10 +1356,16 @@
         const editFloorNumInput = document.getElementById('edit-floor-num');
         const bodyBg = document.getElementById('body-bg');
         const panelTitle = document.getElementById('panel-title');
-        const samplingAlertBanner = document.getElementById('sampling-alert-banner');
-        const samplingAlertText = document.getElementById('sampling-alert-text');
 
-        // Fungsi Ambil Data dari Firestore
+        // Elemen Banner & Modal Pop-up Detail
+        const globalNotificationBanner = document.getElementById('global-notification-banner');
+        const globalNotificationText = document.getElementById('global-notification-text');
+        const globalViewDetailBtn = document.getElementById('global-view-detail-btn');
+        const samplingModalOverlay = document.getElementById('sampling-modal-overlay');
+        const samplingModalEntriesList = document.getElementById('sampling-modal-entries-list');
+        const modalXCloseBtn = document.getElementById('modal-x-close-btn');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
         async function loadSavedData() {
             try {
                 const querySnapshot = await getDocs(collection(db, "Microbiology"));
@@ -1227,7 +1393,6 @@
             }
         }
 
-        // Fungsi Simpan Data ke Firestore
         async function saveDataGudang() {
             try {
                 for (let i = 0; i < dataGudang.length; i++) {
@@ -1286,28 +1451,73 @@
             return floor.entries;
         }
 
-        // Pengecekan global untuk memicu banner peringatan jika ada item mencapai H+5 atau H+7
+        // Pengecekan Notifikasi Global & Tampilan Tombol View Detail
         function checkGlobalSamplingNotifications() {
-            let alertItemsCount = 0;
-            dataGudang.forEach(rak => {
-                rak.floors.forEach(floor => {
+            cachedAlertItems = [];
+
+            dataGudang.forEach((rak) => {
+                rak.floors.forEach((floor) => {
                     const entries = getFloorEntries(floor);
-                    entries.forEach(e => {
+                    entries.forEach((e) => {
                         const days = getDaysDifference(e.productionDate);
                         if (days === 5 || days === 7 || days > 7) {
-                            alertItemsCount++;
+                            cachedAlertItems.push({
+                                rakName: rak.nama,
+                                floorNum: floor.floor,
+                                entry: e,
+                                days: days
+                            });
                         }
                     });
                 });
             });
 
-            if (alertItemsCount > 0) {
-                samplingAlertBanner.style.display = 'flex';
-                samplingAlertText.textContent = `⚠️ Perhatian: Ada ${alertItemsCount} sample yang sudah memasuki / melewati jadwal pengambilan (H+5 / H+7)!`;
+            if (cachedAlertItems.length > 0) {
+                globalNotificationText.textContent = `⚠️ Perhatian: Ada ${cachedAlertItems.length} sample yang memasuki/melewati jadwal pengambilan (H+5 / H+7)!`;
+                globalNotificationBanner.style.display = 'flex';
             } else {
-                samplingAlertBanner.style.display = 'none';
+                globalNotificationBanner.style.display = 'none';
+                samplingModalOverlay.style.display = 'none';
             }
         }
+
+        // Klik View Detail pada Banner Modal Pop-up (Format Diperjelas)
+        globalViewDetailBtn.addEventListener('click', () => {
+            if (cachedAlertItems.length > 0) {
+                samplingModalEntriesList.innerHTML = cachedAlertItems.map(item => {
+                    let statusBadge = '';
+                    if (item.days === 5) statusBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
+                    else if (item.days === 7) statusBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
+                    else if (item.days > 7) statusBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${item.days}</span>`;
+
+                    return `
+                        <div class="sampling-item-card">
+                            <div style="font-weight:700; color:#111; font-size:12px;">${item.rakName} - Lantai ${item.floorNum}</div>
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:2px;">
+                                <span style="font-weight:700; color:#111; font-size:13px;">${item.entry.product || '-'}</span> 
+                                ${item.entry.productCode ? `<span style="color:#555; font-weight:600;">(${item.entry.productCode})</span>` : ''} 
+                                ${statusBadge}
+                            </div>
+                            <div style="color: #4b5563; font-size: 11px; margin-top: 2px;">
+                                Prod: ${formatDate(item.entry.productionDate)} | Exp: ${formatDate(item.entry.expiredDate)}
+                            </div>
+                            ${item.entry.description ? `<div style="color: #6b7280; font-style:italic; font-size:10.5px;">Desc: ${item.entry.description}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                samplingModalOverlay.style.display = 'flex';
+            }
+        });
+
+        // Tombol Close pada Modal Pop-up
+        modalXCloseBtn.addEventListener('click', () => {
+            samplingModalOverlay.style.display = 'none';
+        });
+
+        modalCloseBtn.addEventListener('click', () => {
+            samplingModalOverlay.style.display = 'none';
+        });
 
         function updateFloorsOverview() {
             const rak = dataGudang[currentRakIndex];
@@ -1751,7 +1961,6 @@
             }
         });
 
-        // Inisialisasi awal & Realtime Listener Firestore
         window.addEventListener('DOMContentLoaded', async () => {
             const remoteData = await loadSavedData();
             if (remoteData) {
@@ -1765,7 +1974,6 @@
             updateView(1);
             changeFloorByNumber(1);
 
-            // Realtime Sync menggunakan onSnapshot Firestore
             onSnapshot(collection(db, "Microbiology"), (snapshot) => {
                 let hasChanges = false;
                 snapshot.forEach((docSnap) => {
