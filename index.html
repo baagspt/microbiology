@@ -1866,8 +1866,20 @@
             foundMatches.forEach(match => {
                 const resItem = document.createElement('div');
                 resItem.className = 'search-result-item';
+
+                // --- PERBAIKAN DI SINI (Menambahkan logika badge notifikasi pada hasil pencarian) ---
+                const days = getDaysDifference(match.entry.productionDate);
+                let samplingBadge = '';
+                if (days === 5) {
+                    samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
+                } else if (days === 7) {
+                    samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
+                } else if (days > 7) {
+                    samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
+                }
+
                 resItem.innerHTML = `
-                    <strong style="color: #111;">${match.rakName} - Lt ${match.floorNum}</strong>: <span style="font-weight:600;">${match.entry.product || '-'}</span> ${match.entry.productCode ? `(${match.entry.productCode})` : ''} ${match.entry.isNew ? '<span class="badge-new">NEW</span>' : ''}<br>
+                    <strong style="color: #111;">${match.rakName} - Lt ${match.floorNum}</strong>: <span style="font-weight:600;">${match.entry.product || '-'}</span> ${match.entry.productCode ? `(${match.entry.productCode})` : ''} ${match.entry.isNew ? '<span class="badge-new">NEW</span>' : ''} ${samplingBadge}<br>
                     <span style="color: #333;">Prod: ${formatDate(match.entry.productionDate)} | Exp: ${formatDate(match.entry.expiredDate)}</span>
                     ${match.entry.description ? `<br><span style="color: #555; font-style: italic;">Desc: ${match.entry.description}</span>` : ''}
                 `;
