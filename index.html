@@ -395,6 +395,14 @@
             -webkit-overflow-scrolling: touch;
         }
 
+        /* Style Default untuk Teks Kosong (Mobile) */
+        .empty-entries-text {
+            color: #666;
+            text-align: center;
+            padding: 10px;
+            font-size: 7.5px;
+        }
+
         .left-rak-nav {
             position: absolute;
             left: 4px; 
@@ -482,47 +490,47 @@
             100% { opacity: 1; }
         }
 
-        /* Styling Modal Pop-up untuk Menampilkan Item Saja & Bisa di-Close */
+        /* Styling Modal Pop-up Default (HP) */
         #sampling-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
             z-index: 9999;
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 12px;
         }
 
         .sampling-modal-box {
             background: #fff;
-            border-radius: 12px;
+            border-radius: 8px;
             width: 100%;
-            max-width: 440px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            max-width: 280px; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            animation: modalPopUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: modalPopUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         @keyframes modalPopUp {
-            from { transform: scale(0.85); opacity: 0; }
+            from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
 
         .sampling-modal-header {
             background: #111;
             color: white;
-            padding: 12px 14px;
+            padding: 7px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 10px;
             font-weight: 700;
         }
 
@@ -530,52 +538,51 @@
             background: transparent;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 14px;
             cursor: pointer;
-            padding: 0 4px;
+            padding: 0 2px;
             line-height: 1;
         }
 
         .sampling-modal-body {
-            padding: 12px;
-            max-height: 320px;
+            padding: 8px;
+            max-height: 200px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 6px;
             background-color: #f9fafb;
         }
 
         .sampling-item-card {
             background: #fefce8;
             border: 1px solid #fef08a;
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 8.5px;
             color: #111;
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            gap: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
 
-        /* PERBAIKAN BADGE: Ukuran font diperbesar & padding disesuaikan agar tidak kekecilan */
         .badge-notif-sampling {
-            background-color: #f97316; /* Oranye Terang/Kontras */
+            background-color: #f97316;
             color: #ffffff;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 4px;
+            font-size: 6.5px;
+            font-weight: 700;
+            padding: 1px 3px;
+            border-radius: 3px;
+            margin-left: 3px;
             display: inline-block;
             vertical-align: middle;
-            letter-spacing: 0.3px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .sampling-modal-footer {
-            padding: 10px 14px;
+            padding: 6px 10px;
             background: #ffffff;
             border-top: 1px solid #e5e7eb;
             display: flex;
@@ -585,9 +592,9 @@
         .modal-btn-close {
             background: #111;
             color: #fff;
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 8.5px;
             font-weight: 700;
             cursor: pointer;
             border: none;
@@ -998,6 +1005,12 @@
                 overflow-y: auto;
             }
 
+            /* Perbesaran ukuran teks "Belum ada item di lantai ini." khusus desktop */
+            .empty-entries-text {
+                font-size: 13px !important;
+                padding: 20px !important;
+            }
+
             .global-search-box {
                 padding: 10px 14px;
                 border-radius: 10px;
@@ -1083,12 +1096,11 @@
                 margin-left: 4px;
             }
 
-            /* Badge H+5 / H+7 di Desktop */
             .badge-notif-sampling {
                 font-size: 11px;
-                padding: 3px 8px;
+                padding: 2.5px 7px;
                 border-radius: 4px;
-                margin-left: 6px;
+                margin-left: 5px;
             }
 
             .global-notification-banner {
@@ -1104,32 +1116,37 @@
             }
 
             .sampling-modal-box {
-                max-width: 520px;
+                max-width: 450px;
             }
 
             .sampling-modal-header {
                 font-size: 14px;
-                padding: 14px 18px;
-            }
-
-            .sampling-modal-body {
-                max-height: 360px;
-                padding: 16px;
-                gap: 12px;
-            }
-
-            .sampling-item-card {
-                font-size: 13px;
                 padding: 12px 16px;
             }
 
+            .sampling-modal-close-icon {
+                font-size: 20px;
+            }
+
+            .sampling-modal-body {
+                max-height: 350px;
+                padding: 14px;
+                gap: 10px;
+            }
+
+            .sampling-item-card {
+                font-size: 12.5px;
+                padding: 10px 12px;
+                gap: 4px;
+            }
+
             .sampling-modal-footer {
-                padding: 12px 18px;
+                padding: 12px 16px;
             }
 
             .modal-btn-close {
-                padding: 8px 16px;
-                font-size: 13px;
+                padding: 7px 16px;
+                font-size: 12px;
             }
 
             .entry-card {
@@ -1214,7 +1231,7 @@
 
         <div class="desktop-right-pane">
             <div class="top-action-container">
-                <!-- Banner Notifikasi Global (Dipindahkan ke sini, tepat di atas Lantai 1) -->
+                <!-- Banner Notifikasi Global -->
                 <div id="global-notification-banner" class="global-notification-banner">
                     <span id="global-notification-text">⚠️ Perhatian: Ada sample yang memasuki/melewati jadwal pengambilan (H+5 / H+7)!</span>
                     <button type="button" id="global-view-detail-btn">View Detail</button>
@@ -1357,7 +1374,6 @@
         const bodyBg = document.getElementById('body-bg');
         const panelTitle = document.getElementById('panel-title');
 
-        // Elemen Banner & Modal Pop-up Detail
         const globalNotificationBanner = document.getElementById('global-notification-banner');
         const globalNotificationText = document.getElementById('global-notification-text');
         const globalViewDetailBtn = document.getElementById('global-view-detail-btn');
@@ -1451,7 +1467,6 @@
             return floor.entries;
         }
 
-        // Pengecekan Notifikasi Global & Tampilan Tombol View Detail
         function checkGlobalSamplingNotifications() {
             cachedAlertItems = [];
 
@@ -1481,7 +1496,6 @@
             }
         }
 
-        // Klik View Detail pada Banner Modal Pop-up (Format Diperjelas)
         globalViewDetailBtn.addEventListener('click', () => {
             if (cachedAlertItems.length > 0) {
                 samplingModalEntriesList.innerHTML = cachedAlertItems.map(item => {
@@ -1492,16 +1506,16 @@
 
                     return `
                         <div class="sampling-item-card">
-                            <div style="font-weight:700; color:#111; font-size:12px;">${item.rakName} - Lantai ${item.floorNum}</div>
-                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:2px;">
-                                <span style="font-weight:700; color:#111; font-size:13px;">${item.entry.product || '-'}</span> 
-                                ${item.entry.productCode ? `<span style="color:#555; font-weight:600;">(${item.entry.productCode})</span>` : ''} 
+                            <div style="font-weight:700; color:#111;">${item.rakName} - Lantai ${item.floorNum}</div>
+                            <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-top:1px;">
+                                <span style="font-weight:700; color:#111;">${item.entry.product || '-'}</span> 
+                                ${item.entry.productCode ? `<span style="color:#555;">(${item.entry.productCode})</span>` : ''} 
                                 ${statusBadge}
                             </div>
-                            <div style="color: #4b5563; font-size: 11px; margin-top: 2px;">
+                            <div style="color: #4b5563; margin-top: 1px;">
                                 Prod: ${formatDate(item.entry.productionDate)} | Exp: ${formatDate(item.entry.expiredDate)}
                             </div>
-                            ${item.entry.description ? `<div style="color: #6b7280; font-style:italic; font-size:10.5px;">Desc: ${item.entry.description}</div>` : ''}
+                            ${item.entry.description ? `<div style="color: #6b7280; font-style:italic;">Desc: ${item.entry.description}</div>` : ''}
                         </div>
                     `;
                 }).join('');
@@ -1510,7 +1524,6 @@
             }
         });
 
-        // Tombol Close pada Modal Pop-up
         modalXCloseBtn.addEventListener('click', () => {
             samplingModalOverlay.style.display = 'none';
         });
@@ -1567,11 +1580,11 @@
             const days = getDaysDifference(entry.productionDate);
             let samplingBadge = '';
             if (days === 5) {
-                samplingBadge = '<span class="badge-notif-sampling">🔔 PENGAMBILAN H+5</span>';
+                samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
             } else if (days === 7) {
-                samplingBadge = '<span class="badge-notif-sampling">🔔 PENGAMBILAN H+7</span>';
+                samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
             } else if (days > 7) {
-                samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">⚠️ LEWAT H+${days}</span>`;
+                samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
             }
 
             card.className = `entry-card ${animClass}`;
@@ -1599,7 +1612,7 @@
             const editingFloor = parseInt(editFloorNumInput.value);
             
             if (entries.length === 0) {
-                entriesContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 10px; font-size: 7.5px;" class="empty-entries-text">Belum ada item di lantai ini.</p>';
+                entriesContainer.innerHTML = '<p class="empty-entries-text">Belum ada item di lantai ini.</p>';
             } else {
                 entries.forEach((entry, index) => {
                     const isTarget = (index === highlightedIndex);
