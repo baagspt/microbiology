@@ -507,7 +507,6 @@
             padding: 12px;
         }
 
-        /* MODAL FOTO YANG SUDAH DIPERBESAR AGAR FOTO PORTRAIT TIDAK TERPOTONG */
         #photo-modal-overlay {
             position: fixed;
             top: 0;
@@ -740,6 +739,7 @@
             background: rgba(240, 240, 240, 0.95);
         }
 
+        /* PANEL INPUT BARU: DESKRIPSI DAN FOTO SEJAJAR */
         .add-item-panel {
             background: rgba(255, 255, 255, 0.85);
             -webkit-backdrop-filter: blur(12px);
@@ -789,7 +789,8 @@
             resize: none;
         }
 
-        .add-item-panel button {
+        /* Tombol tambah item membentang penuh di bawah */
+        .add-item-panel button#save-button {
             grid-column: span 2;
             background: #111;
             color: #fff;
@@ -1090,10 +1091,10 @@
             }
 
             .add-item-panel textarea {
-                height: 50px;
+                height: 40px;
             }
 
-            .add-item-panel button {
+            .add-item-panel button#save-button {
                 padding: 9px 14px;
                 font-size: 13px; 
                 border-radius: 6px;
@@ -1217,7 +1218,6 @@
         </div>
     </div>
 
-    <!-- MODAL FOTO UTUH (MENGGUNAKAN object-fit: contain AGAR TIDAK TERPOTONG) -->
     <div id="photo-modal-overlay">
         <div class="photo-modal-box">
             <div class="sampling-modal-header">
@@ -1299,10 +1299,12 @@
                     </div>
                 </div>
 
+                <!-- PANEL INPUT: DESKRIPSI & FOTO DIBUAT SEJAJAR KE SAMPING -->
                 <div class="add-item-panel">
                     <input type="hidden" id="edit-index" value="-1">
                     <input type="hidden" id="edit-rak-index" value="-1">
                     <input type="hidden" id="edit-floor-num" value="-1">
+                    
                     <div class="input-group">
                         <label for="input-product">Nama Produk</label>
                         <input id="input-product" type="text" placeholder="Nama Produk" />
@@ -1319,14 +1321,19 @@
                         <label for="input-exp-date">Tgl Expired (Exp)</label>
                         <input id="input-exp-date" type="date" title="Tanggal Kedaluwarsa" />
                     </div>
-                    <div class="input-group full-width">
+                    
+                    <!-- Kolom Kiri: Deskripsi -->
+                    <div class="input-group">
                         <label for="input-desc">Deskripsi</label>
                         <textarea id="input-desc" placeholder="Deskripsi..."></textarea>
                     </div>
-                    <div class="input-group full-width">
+                    
+                    <!-- Kolom Kanan: Foto (Sejajar dengan Deskripsi) -->
+                    <div class="input-group">
                         <label for="input-image">Foto (Kamera/Galeri)</label>
                         <input id="input-image" type="file" accept="image/*" />
                     </div>
+
                     <button id="save-button" type="button">Tambah Item</button>
                 </div>
 
