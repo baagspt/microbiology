@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Monitoring Sample Microbiology</title>
-    <!-- Tambahkan favicon Anda di sini, ganti "logo.png" dengan link atau nama file gambar logo Anda -->
     <link rel="icon" type="image/png" href="logo.png">
     
     <style>
@@ -27,7 +26,6 @@
             touch-action: none;
         }
 
-        /* Default Background Rak 1 */
         body {
             display: flex;
             flex-direction: column;
@@ -42,7 +40,6 @@
             transition: background 0.6s ease, background-image 0.6s ease;
         }
 
-        /* Background Gradasi Unik untuk Setiap Rak */
         body.rak-theme-1 {
             background-image: 
                 radial-gradient(circle at 20% 20%, rgba(220, 50, 50, 0.15) 0%, rgba(200, 200, 200, 0.1) 35%, transparent 60%),
@@ -398,7 +395,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Style Default untuk Teks Kosong (Mobile) */
         .empty-entries-text {
             color: #666;
             text-align: center;
@@ -458,7 +454,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Styling Banner Notifikasi Global diposisikan di dalam Panel Kanan */
         .global-notification-banner {
             background: linear-gradient(135deg, #f59e0b, #d97706);
             color: #fff;
@@ -494,7 +489,6 @@
             100% { opacity: 1; }
         }
 
-        /* Styling Modal Pop-up Default (HP) - Diperbaiki untuk iOS Safari */
         #sampling-modal-overlay {
             position: fixed;
             top: 0;
@@ -505,6 +499,22 @@
             -webkit-backdrop-filter: blur(3px);
             backdrop-filter: blur(3px);
             z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        #photo-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            z-index: 10000;
             display: none;
             align-items: center;
             justify-content: center;
@@ -573,7 +583,6 @@
         }
 
         .badge-notif-sampling {
-            background-color: #f97316;
             color: #ffffff;
             font-size: 6.5px;
             font-weight: 700;
@@ -825,7 +834,6 @@
             display: inline-block;
         }
 
-        /* KHUSUS DESKTOP */
         @media (min-width: 1024px) {
             html, body {
                 position: static;
@@ -1013,7 +1021,6 @@
                 overflow-y: auto;
             }
 
-            /* Perbesaran ukuran teks "Belum ada item di lantai ini." khusus desktop */
             .empty-entries-text {
                 font-size: 13px !important;
                 padding: 20px !important;
@@ -1181,18 +1188,30 @@
 </head>
 <body id="body-bg" class="rak-theme-1">
 
-    <!-- Modal Pop-up untuk Menampilkan Item Saja & Tombol Close -->
     <div id="sampling-modal-overlay">
         <div class="sampling-modal-box">
             <div class="sampling-modal-header">
                 <span id="sampling-modal-title">Detail Sample (H+5 / H+7)</span>
                 <button type="button" class="sampling-modal-close-icon" id="modal-x-close-btn">&times;</button>
             </div>
-            <div class="sampling-modal-body" id="sampling-modal-entries-list">
-                <!-- Daftar item sample akan dimuat di sini secara dinamis -->
-            </div>
+            <div class="sampling-modal-body" id="sampling-modal-entries-list"></div>
             <div class="sampling-modal-footer">
                 <button type="button" class="modal-btn-close" id="modal-close-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="photo-modal-overlay">
+        <div class="sampling-modal-box" style="max-width: 320px;">
+            <div class="sampling-modal-header">
+                <span>Foto Produk</span>
+                <button type="button" class="sampling-modal-close-icon" id="photo-modal-x-btn">&times;</button>
+            </div>
+            <div class="sampling-modal-body" style="justify-content: center; align-items: center; padding: 12px;">
+                <img id="modal-product-image" src="" alt="Foto Produk" style="max-width: 100%; max-height: 250px; object-fit: contain; border-radius: 4px;" />
+            </div>
+            <div class="sampling-modal-footer">
+                <button type="button" class="modal-btn-close" id="photo-modal-close-btn">Tutup</button>
             </div>
         </div>
     </div>
@@ -1239,7 +1258,6 @@
 
         <div class="desktop-right-pane">
             <div class="top-action-container">
-                <!-- Banner Notifikasi Global -->
                 <div id="global-notification-banner" class="global-notification-banner">
                     <span id="global-notification-text">⚠️ Perhatian: Ada sample yang memasuki/melewati jadwal pengambilan (H+5 / H+7)!</span>
                     <button type="button" id="global-view-detail-btn">View Detail</button>
@@ -1291,6 +1309,10 @@
                         <label for="input-desc">Deskripsi</label>
                         <textarea id="input-desc" placeholder="Deskripsi..."></textarea>
                     </div>
+                    <div class="input-group full-width">
+                        <label for="input-image">Foto (Kamera/Galeri)</label>
+                        <input id="input-image" type="file" accept="image/*" />
+                    </div>
                     <button id="save-button" type="button">Tambah Item</button>
                 </div>
 
@@ -1305,7 +1327,6 @@
         </div>
     </main>
 
-    <!-- Firebase SDK v10 (Modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -1390,6 +1411,69 @@
         const modalXCloseBtn = document.getElementById('modal-x-close-btn');
         const modalCloseBtn = document.getElementById('modal-close-btn');
 
+        const photoModalOverlay = document.getElementById('photo-modal-overlay');
+        const modalProductImage = document.getElementById('modal-product-image');
+        const photoModalXBtn = document.getElementById('photo-modal-x-btn');
+        const photoModalCloseBtn = document.getElementById('photo-modal-close-btn');
+
+        function closePhotoModal() {
+            photoModalOverlay.style.display = 'none';
+            modalProductImage.src = '';
+        }
+
+        photoModalXBtn.addEventListener('click', closePhotoModal);
+        photoModalCloseBtn.addEventListener('click', closePhotoModal);
+        photoModalOverlay.addEventListener('click', (e) => {
+            if (e.target === photoModalOverlay) closePhotoModal();
+        });
+
+        const inputImage = document.getElementById('input-image');
+        let temporaryImageBase64 = "";
+
+        if (inputImage) {
+            inputImage.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    temporaryImageBase64 = "";
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        
+                        const MAX_WIDTH = 600;
+                        const MAX_HEIGHT = 600;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        temporaryImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function loadSavedData() {
             try {
                 const querySnapshot = await getDocs(collection(db, "Microbiology"));
@@ -1398,10 +1482,12 @@
                 const loadedData = [];
                 querySnapshot.forEach((docSnap) => {
                     const item = docSnap.data();
-                    loadedData.push({
-                        rak_index: item.rak_index,
-                        floors_data: item.floors_data
-                    });
+                    if (item.rak_index !== undefined) {
+                        loadedData.push({
+                            rak_index: item.rak_index,
+                            floors_data: item.floors_data
+                        });
+                    }
                 });
 
                 loadedData.sort((a, b) => a.rak_index - b.rak_index);
@@ -1428,6 +1514,7 @@
                 }
             } catch (err) {
                 console.warn('Gagal menyimpan data ke Firebase', err);
+                alert("Gagal menyimpan data ke server! Kemungkinan ukuran foto masih terlalu besar.");
             }
         }
 
@@ -1436,7 +1523,7 @@
         });
 
         previewImg.onerror = () => {
-            previewImg.src = '0000.png';
+            previewImg.src = '000000.png';
         };
 
         function isEditingActive() {
@@ -1508,9 +1595,13 @@
             if (cachedAlertItems.length > 0) {
                 samplingModalEntriesList.innerHTML = cachedAlertItems.map(item => {
                     let statusBadge = '';
-                    if (item.days === 5) statusBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
-                    else if (item.days === 7) statusBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
-                    else if (item.days > 7) statusBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${item.days}</span>`;
+                    if (item.days === 5) {
+                        statusBadge = '<span class="badge-notif-sampling" style="background-color: #eab308;">JADWAL H+5</span>';
+                    } else if (item.days === 7) {
+                        statusBadge = '<span class="badge-notif-sampling" style="background-color: #f97316;">JADWAL H+7</span>';
+                    } else if (item.days > 7) {
+                        statusBadge = `<span class="badge-notif-sampling" style="background-color: #dc2626;">LEWAT H+${item.days}</span>`;
+                    }
 
                     return `
                         <div class="sampling-item-card">
@@ -1556,9 +1647,13 @@
                     detailsHTML = entries.map(e => {
                         const days = getDaysDifference(e.productionDate);
                         let samplingBadge = '';
-                        if (days === 5) samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
-                        else if (days === 7) samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
-                        else if (days > 7) samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
+                        if (days === 5) {
+                            samplingBadge = '<span class="badge-notif-sampling" style="background-color: #eab308;">JADWAL H+5</span>';
+                        } else if (days === 7) {
+                            samplingBadge = '<span class="badge-notif-sampling" style="background-color: #f97316;">JADWAL H+7</span>';
+                        } else if (days > 7) {
+                            samplingBadge = `<span class="badge-notif-sampling" style="background-color: #dc2626;">LEWAT H+${days}</span>`;
+                        }
 
                         return `
                             <div style="margin-top: 2px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 2px; color: #111;">
@@ -1588,23 +1683,29 @@
             const days = getDaysDifference(entry.productionDate);
             let samplingBadge = '';
             if (days === 5) {
-                samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
+                samplingBadge = '<span class="badge-notif-sampling" style="background-color: #eab308;">JADWAL H+5</span>';
             } else if (days === 7) {
-                samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
+                samplingBadge = '<span class="badge-notif-sampling" style="background-color: #f97316;">JADWAL H+7</span>';
             } else if (days > 7) {
-                samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
+                samplingBadge = `<span class="badge-notif-sampling" style="background-color: #dc2626;">LEWAT H+${days}</span>`;
             }
 
             card.className = `entry-card ${animClass}`;
             card.style.cssText = "background: rgba(255,255,255,0.85); border: 1px solid rgba(210,210,210,0.7); padding: 5px 8px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; flex-shrink: 0; transition: all 0.3s ease; font-size: 7.5px;";
             
+            const hasImage = !!entry.imageUrl;
+            const btnLihatFotoHtml = hasImage ? `
+                <button type="button" class="show-photo-modal-btn" data-img="${entry.imageUrl}" style="background:rgba(240, 240, 240, 0.95); border:1px solid rgba(200, 200, 200, 0.7); color:#333; font-weight:600; padding: 2px 5px; border-radius: 3px; cursor:pointer; font-size: 7px;">Lihat Foto</button>
+            ` : '';
+
             card.innerHTML = `
                 <div style="color: #111; flex: 1; padding-right: 6px; line-height: 1.25;">
                     <strong style="color: #111; display: inline-block; margin-bottom: 1px;">${entry.product || 'Tanpa Nama'}</strong> ${entry.productCode ? `<span style="color: #555;">(${entry.productCode})</span>` : ''} ${entry.isNew ? '<span class="badge-new">NEW</span>' : ''} ${samplingBadge}<br>
                     <span style="color: #333;">Prod: ${formatDate(entry.productionDate)} | Exp: ${formatDate(entry.expiredDate)}</span>
                     ${entry.description ? `<br><span style="color: #555; font-style: italic;">Deskripsi: ${entry.description}</span>` : ''}
                 </div>
-                <div style="display: flex; gap: 4px;">
+                <div style="display: flex; gap: 4px; align-items: center;">
+                    ${btnLihatFotoHtml}
                     <button type="button" class="edit-entry-button" data-index="${index}" style="background:rgba(230, 240, 250, 0.95); border:1px solid rgba(167, 195, 220, 0.7); color:#225599; font-weight:600; padding: 2px 5px; border-radius: 3px; cursor:pointer; font-size: 7px;">Edit</button>
                     <button type="button" class="remove-entry-button" data-index="${index}" style="background:rgba(250, 230, 230, 0.95); border:1px solid rgba(220, 167, 167, 0.7); color:#992222; font-weight:600; padding: 2px 5px; border-radius: 3px; cursor:pointer; font-size: 7px;">Hapus</button>
                 </div>
@@ -1640,20 +1741,34 @@
             checkGlobalSamplingNotifications();
         }
 
+        // List lengkap 64 kombinasi file foto untuk 6 lantai (000000.png s.d. 111111.png)
         const availableImageFiles = [
-            '0000.png', '0001.png', '0004.png', '0030.png', '0034.png',
-            '0200.png', '0204.png', '0220.png', '0230.png', '0234.png',
-            '1000.png', '1004.png', '1030.png', '1034.png',
-            '1200.png', '1204.png', '1230.png', '1234.png'
+            '000000.png', '000001.png', '000010.png', '000011.png',
+            '000100.png', '000101.png', '000110.png', '000111.png',
+            '001000.png', '001001.png', '001010.png', '001011.png',
+            '001100.png', '001101.png', '001110.png', '001111.png',
+            '010000.png', '010001.png', '010010.png', '010011.png',
+            '010100.png', '010101.png', '010110.png', '010111.png',
+            '011000.png', '011001.png', '011010.png', '011011.png',
+            '011100.png', '011101.png', '011110.png', '011111.png',
+            '100000.png', '100001.png', '100010.png', '100011.png',
+            '100100.png', '100101.png', '100110.png', '100111.png',
+            '101000.png', '101001.png', '101010.png', '101011.png',
+            '101100.png', '101101.png', '101110.png', '101111.png',
+            '110000.png', '110001.png', '110010.png', '110011.png',
+            '110100.png', '110101.png', '110110.png', '110111.png',
+            '111000.png', '111001.png', '111010.png', '111011.png',
+            '111100.png', '111101.png', '111110.png', '111111.png'
         ];
 
         function getRackImage(rak) {
+            // Membaca seluruh 6 lantai (lantai 1 s.d. 6)
             const code = rak.floors
-                .slice(0, 4)
-                .map((floor, index) => getFloorEntries(floor).some(entry => entry.product) ? String(index + 1) : '0')
+                .slice(0, 6)
+                .map((floor) => getFloorEntries(floor).some(entry => entry.product) ? '1' : '0')
                 .join('');
             const fileName = `${code}.png`;
-            return availableImageFiles.includes(fileName) ? fileName : '0000.png';
+            return availableImageFiles.includes(fileName) ? fileName : '000000.png';
         }
 
         function getCurrentFloor(rak) {
@@ -1751,7 +1866,8 @@
                     productionDate: productionDate,
                     expiredDate: expiredDate,
                     productCode: productCode,
-                    description: description
+                    description: description,
+                    imageUrl: temporaryImageBase64 || floor.entries[editIndex].imageUrl || ""
                 };
                 editIndexInput.value = -1;
                 editRakIndexInput.value = -1;
@@ -1767,7 +1883,8 @@
                     productCode: productCode,
                     description: description,
                     isNew: true,
-                    createdAt: new Date().getTime()
+                    createdAt: new Date().getTime(),
+                    imageUrl: temporaryImageBase64
                 });
                 activeFloor.status = activeFloor.entries.length > 0 ? 1 : 0;
             }
@@ -1779,6 +1896,9 @@
             document.getElementById('input-exp-date').value = '';
             document.getElementById('input-code').value = '';
             document.getElementById('input-desc').value = '';
+            
+            if (inputImage) inputImage.value = '';
+            temporaryImageBase64 = "";
 
             const currentActiveRak = dataGudang[currentRakIndex];
             renderEntries(getCurrentFloor(currentActiveRak));
@@ -1814,6 +1934,9 @@
             editRakIndexInput.value = -1;
             editFloorNumInput.value = -1;
             saveButton.textContent = "Tambah Item";
+
+            if (inputImage) inputImage.value = '';
+            temporaryImageBase64 = "";
 
             renderEntries(floor);
             previewImg.src = getRackImage(rak);
@@ -1867,15 +1990,14 @@
                 const resItem = document.createElement('div');
                 resItem.className = 'search-result-item';
 
-                // --- PERBAIKAN DI SINI (Menambahkan logika badge notifikasi pada hasil pencarian) ---
                 const days = getDaysDifference(match.entry.productionDate);
                 let samplingBadge = '';
                 if (days === 5) {
-                    samplingBadge = '<span class="badge-notif-sampling">JADWAL H+5</span>';
+                    samplingBadge = '<span class="badge-notif-sampling" style="background-color: #eab308;">JADWAL H+5</span>';
                 } else if (days === 7) {
-                    samplingBadge = '<span class="badge-notif-sampling">JADWAL H+7</span>';
+                    samplingBadge = '<span class="badge-notif-sampling" style="background-color: #f97316;">JADWAL H+7</span>';
                 } else if (days > 7) {
-                    samplingBadge = `<span class="badge-notif-sampling" style="background:#dc2626;">LEWAT H+${days}</span>`;
+                    samplingBadge = `<span class="badge-notif-sampling" style="background-color: #dc2626;">LEWAT H+${days}</span>`;
                 }
 
                 resItem.innerHTML = `
@@ -1935,6 +2057,14 @@
             const floor = getCurrentFloor(rak);
             if (!floor) return;
 
+            if (e.target && e.target.classList.contains('show-photo-modal-btn')) {
+                const imgSrc = e.target.getAttribute('data-img');
+                if (imgSrc) {
+                    modalProductImage.src = imgSrc;
+                    photoModalOverlay.style.display = 'flex';
+                }
+            }
+
             if (e.target && e.target.classList.contains('edit-entry-button')) {
                 const index = parseInt(e.target.getAttribute('data-index'));
                 if (isNaN(index)) return;
@@ -1952,6 +2082,10 @@
                 document.getElementById('input-prod-date').value = entry.productionDate || '';
                 document.getElementById('input-exp-date').value = entry.expiredDate || '';
                 document.getElementById('input-desc').value = entry.description || '';
+                
+                if (inputImage) inputImage.value = '';
+                temporaryImageBase64 = "";
+
                 editIndexInput.value = index;
                 editRakIndexInput.value = currentRakIndex;
                 editFloorNumInput.value = selectedFloor;
@@ -1981,6 +2115,10 @@
                         document.getElementById('input-exp-date').value = '';
                         document.getElementById('input-code').value = '';
                         document.getElementById('input-desc').value = '';
+                        
+                        if (inputImage) inputImage.value = '';
+                        temporaryImageBase64 = "";
+
                         editIndexInput.value = -1;
                         editRakIndexInput.value = -1;
                         editFloorNumInput.value = -1;
@@ -2011,7 +2149,7 @@
                 let hasChanges = false;
                 snapshot.forEach((docSnap) => {
                     const item = docSnap.data();
-                    if (dataGudang[item.rak_index]) {
+                    if (item.rak_index !== undefined && dataGudang[item.rak_index]) {
                         dataGudang[item.rak_index].floors = item.floors_data;
                         hasChanges = true;
                     }
