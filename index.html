@@ -902,7 +902,6 @@
                 height: calc(100dvh - 52px);
             }
 
-            /* Container putih dihilangkan (transparan, tanpa border, tanpa box-shadow) */
             .desktop-left-pane {
                 flex: 0 0 45%;
                 height: 100%;
@@ -1776,8 +1775,10 @@
         ];
 
         function getRackImage(rak) {
+            // Urutan dibalik: Lantai 6 (indeks ke-5) di posisi paling kiri hingga Lantai 1 (indeks ke-0) di posisi paling kanan
             const code = rak.floors
                 .slice(0, 6)
+                .reverse()
                 .map((floor) => getFloorEntries(floor).some(entry => entry.product) ? '1' : '0')
                 .join('');
             const fileName = `${code}.png`;
